@@ -1,0 +1,23 @@
+[
+  {
+    "tag": "Tutorial",
+    "title": "Getting Started with Go",
+    "description": "Learn the basics of Go programming language.",
+    "site_name": "example.com",
+    "out": "out/getting-started.png"
+  },
+  {
+    "tag": "Deep Dive",
+    "title": "Concurrency in Go",
+    "description": "Goroutines, channels, and patterns for concurrent programming.",
+    "site_name": "example.com",
+    "out": "out/concurrency.png"
+  },
+  {
+    "tag": "Best Practices",
+    "title": "Error Handling in Go",
+    "description": "Idiomatic error handling strategies for robust Go applications.",
+    "site_name": "example.com",
+    "out": "out/error-handling.png"
+  }
+]

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            width: 1200px;
+            height: 630px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+        .card {
+            width: 1080px;
+            height: 510px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 24px;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        .tag {
+            font-size: 18px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #a78bfa;
+            margin-bottom: 24px;
+        }
+        .title {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+        }
+        .description {
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+            max-width: 800px;
+        }
+        .footer {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #a78bfa;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="tag">{{.Tag}}</div>
+        <div class="title">{{.Title}}</div>
+        <div class="description">{{.Description}}</div>
+        <div class="footer">
+            <div class="dot"></div>
+            <span>{{.SiteName}}</span>
+        </div>
+    </div>
+</body>
+</html>

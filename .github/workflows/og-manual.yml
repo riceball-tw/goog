@@ -1,0 +1,43 @@
+name: Manual OG Image Generation
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Generation mode"
+        required: true
+        default: "config"
+        type: choice
+        options:
+          - config
+          - scan_markdown
+      config_path:
+        description: "Path to JSON config file (config mode)"
+        required: false
+        default: "images.json"
+      scan_directory:
+        description: "Directory to scan (scan_markdown mode)"
+        required: false
+        default: "content"
+      template:
+        description: "Path to HTML template"
+        required: false
+        default: "templates/og.html"
+      workers:
+        description: "Number of concurrent workers"
+        required: false
+        default: "4"
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: riceball-tw/goog@v1
+        with:
+          config: ${{ github.event.inputs.mode == 'config' && github.event.inputs.config_path || '' }}
+          scan_markdown: ${{ github.event.inputs.mode == 'scan_markdown' && github.event.inputs.scan_directory || '' }}
+          template: ${{ github.event.inputs.template }}
+          workers: ${{ github.event.inputs.workers }}
+          commit: "true"
+          commit_message: "chore: regenerate OG images [skip ci]"
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,79 @@
+name: "goog - OG Image Generator"
+description: "Generate Open Graph social card images using Go templates and headless Chrome"
+author: "riceball-tw"
+branding:
+  icon: "share-2"
+  color: "purple"
+inputs:
+  # Batch config mode
+  config:
+    description: "Path to JSON config file for batch generation"
+    required: false
+    default: ""
+  # Markdown scanning mode (new)
+  scan_markdown:
+    description: "Directory to scan for markdown files with ogImage frontmatter"
+    required: false
+    default: ""
+  # Single-image mode flags
+  template:
+    description: "Path to HTML template file"
+    required: false
+    default: "templates/og.html"
+  title:
+    description: "OG title text"
+    required: false
+    default: "Hello, Open Graph!"
+  description:
+    description: "OG description text"
+    required: false
+    default: ""
+  tag:
+    description: "Tag / category label"
+    required: false
+    default: "Blog Post"
+  site_name:
+    description: "Site name shown in footer"
+    required: false
+    default: "example.com"
+  out:
+    description: "Output image path (single mode only)"
+    required: false
+    default: "out/og.png"
+  raw:
+    description: "Treat template as raw HTML"
+    required: false
+    default: "false"
+  # Global flags
+  workers:
+    description: "Number of concurrent workers"
+    required: false
+    default: "4"
+  working_directory:
+    description: "Repository root directory"
+    required: false
+    default: "${{ github.workspace }}"
+  ignore_patterns:
+    description: "Comma-separated glob patterns to ignore (markdown mode)"
+    required: false
+    default: "README.md"
+  # Git behavior
+  commit:
+    description: "Auto-commit generated images"
+    required: false
+    default: "true"
+  commit_message:
+    description: "Commit message for auto-commit"
+    required: false
+    default: "chore: generate OG images [skip ci]"
+  github_token:
+    description: "GitHub token for PR comments and push"
+    required: false
+    default: "${{ github.token }}"
+  post_preview:
+    description: "Post PR comment with image preview"
+    required: false
+    default: "true"
+runs:
+  using: "docker"
+  image: "Dockerfile"

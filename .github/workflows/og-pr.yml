@@ -1,0 +1,19 @@
+name: OG Image Preview
+on:
+  pull_request:
+    paths:
+      - 'content/**/*.md'
+      - 'templates/**'
+      - 'images.json'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: riceball-tw/goog@v1
+        with:
+          scan_markdown: content/blog
+          commit: "false"
+          post_preview: "true"
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -19,6 +19,7 @@ RUN apk add --no-cache \
     chromium \
     chromium-chromedriver \
     bash \
+    jq \
     github-cli \
     # Fonts for rendering
     font-noto \

@@ -137,11 +137,13 @@ if [ "${INPUT_POST_PREVIEW:-true}" = "true" ] && [ "${GITHUB_EVENT_NAME:-}" = "p
         PR_NUMBER=$(jq -r '.pull_request.number' "$GITHUB_EVENT_PATH" 2>/dev/null || echo "")
 
         if [ -n "$PR_NUMBER" ]; then
-            echo -e "$COMMENT" | gh pr comment "$PR_NUMBER" \
+            if echo -e "$COMMENT" | gh pr comment "$PR_NUMBER" \
                 --repo "$GITHUB_REPOSITORY" \
-                --body-file - \
-                || echo "⚠️  Failed to post PR comment"
-            echo "✅ PR comment posted"
+                --body-file -; then
+                echo "✅ PR comment posted"
+            else
+                echo "⚠️  Failed to post PR comment"
+            fi
         else
             echo "⚠️  Could not determine PR number, skipping comment"
         fi

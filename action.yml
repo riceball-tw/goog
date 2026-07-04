@@ -57,23 +57,32 @@ inputs:
     description: "Comma-separated glob patterns to ignore (markdown mode)"
     required: false
     default: "README.md"
+  artifact_path:
+    description: "Directory where generated images are staged for actions/upload-artifact"
+    required: false
+    default: "goog-artifacts"
   # Git behavior
   commit:
-    description: "Auto-commit generated images"
+    description: "Auto-commit generated images back to the repository"
     required: false
-    default: "true"
+    default: "false"
   commit_message:
     description: "Commit message for auto-commit"
     required: false
     default: "chore: generate OG images [skip ci]"
   github_token:
-    description: "GitHub token for PR comments and push"
+    description: "GitHub token for PR comments and optional push"
     required: false
     default: "${{ github.token }}"
   post_preview:
     description: "Post PR comment with image preview"
     required: false
     default: "true"
+outputs:
+  artifact_path:
+    description: "Directory containing generated images to upload as a workflow artifact"
+  generated_images:
+    description: "Newline-separated list of generated image paths"
 runs:
   using: "docker"
   image: "Dockerfile"

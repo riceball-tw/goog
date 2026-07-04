@@ -74,6 +74,33 @@ goog --template my-card.html --raw --title ignored
 
 When `--raw` is used, no template variables are injected — the file contents are passed directly to Chrome.
 
+## GitHub Action
+
+Generated images are staged in an artifact directory by default, so the workflow run keeps the images for review without pushing them back into the repository.
+
+```yaml
+name: OG Images
+on:
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: generate
+        uses: riceball-tw/goog@v1
+        with:
+          config: images.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: og-images
+          path: ${{ steps.generate.outputs.artifact_path }}
+          if-no-files-found: error
+```
+
+Set `artifact_path` to change the staging directory. Set `commit: "true"` only if you explicitly want the action to commit generated images back to the repository.
+
 ## Example
 
 ```bash

@@ -32,12 +32,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: riceball-tw/goog@v1
+      - id: generate
+        uses: riceball-tw/goog@v1
         with:
           config: ${{ github.event.inputs.mode == 'config' && github.event.inputs.config_path || '' }}
           scan_markdown: ${{ github.event.inputs.mode == 'scan_markdown' && github.event.inputs.scan_directory || '' }}
           template: ${{ github.event.inputs.template }}
           workers: ${{ github.event.inputs.workers }}
-          commit: "true"
-          commit_message: "chore: regenerate OG images [skip ci]"
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: og-images
+          path: ${{ steps.generate.outputs.artifact_path }}
+          if-no-files-found: error

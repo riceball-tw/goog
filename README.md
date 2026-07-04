@@ -76,7 +76,7 @@ When `--raw` is used, no template variables are injected — the file contents a
 
 ## GitHub Action
 
-Generated images are staged in an artifact directory by default, so the workflow run keeps the images for review without pushing them back into the repository.
+Generated images are staged in an artifact directory, so the workflow run keeps the images for review without pushing them back into the repository.
 
 ```yaml
 name: OG Images
@@ -99,7 +99,7 @@ jobs:
           if-no-files-found: error
 ```
 
-Set `artifact_path` to change the staging directory. Set `commit: "true"` only if you explicitly want the action to commit generated images back to the repository.
+Set `artifact_path` to change the staging directory.
 
 ## Example
 

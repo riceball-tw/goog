@@ -18,7 +18,6 @@ FROM alpine:3.21
 RUN apk add --no-cache \
     chromium \
     chromium-chromedriver \
-    git \
     bash \
     github-cli \
     # Fonts for rendering

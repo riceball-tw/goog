@@ -108,37 +108,6 @@ if [ -n "${GITHUB_OUTPUT:-}" ]; then
 fi
 
 # ============================================================================
-# Optional auto-commit generated images
-# ============================================================================
-
-if [ "${INPUT_COMMIT:-false}" = "true" ]; then
-    echo ""
-    echo "📤 Auto-committing generated images..."
-
-    # Configure git for the action
-    git config --global user.name "github-actions[bot]"
-    git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-    # Set up authentication
-    git remote set-url origin "https://x-access-token:${INPUT_GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-
-    # Stage all generated image files
-    while IFS= read -r img; do
-        git add -A "$img"
-    done < "$GENERATED_IMAGES_FILE"
-
-    # Check if there are changes to commit
-    if git diff --cached --quiet; then
-        echo "ℹ️  No changes to commit"
-    else
-        COMMIT_MSG="${INPUT_COMMIT_MESSAGE:-chore: generate OG images [skip ci]}"
-        git commit -m "${COMMIT_MSG}"
-        git push
-        echo "✅ Changes committed and pushed"
-    fi
-fi
-
-# ============================================================================
 # Post PR preview comment
 # ============================================================================
 

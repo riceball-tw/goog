@@ -56,8 +56,8 @@ func captureScreenshot(ctx context.Context, htmlContent string) ([]byte, error) 
 			return page.SetDocumentContent(frameTree.Frame.ID, htmlContent).Do(ctx)
 		}),
 
-		// Wait for the next paint frame to ensure rendering is complete
-		chromedp.Evaluate(`new Promise(r => requestAnimationFrame(r))`, nil),
+		// Wait for fonts to load then paint to ensure correct rendering
+		chromedp.Evaluate(`new Promise(r => document.fonts.ready.then(() => requestAnimationFrame(r)))`, nil),
 
 		// Take a full-page screenshot
 		chromedp.FullScreenshot(&buf, 100),

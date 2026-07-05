@@ -11,20 +11,12 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// OGData holds the template variables injected into the HTML.
-type OGData struct {
-	Tag         string `json:"tag" yaml:"tag"`
-	Title       string `json:"title" yaml:"title"`
-	Description string `json:"description" yaml:"description"`
-	SiteName    string `json:"site_name" yaml:"site_name"`
-}
-
 // ImageJob describes a single OG image to generate.
 type ImageJob struct {
-	OGData
-	Template string `json:"template"` // path to the HTML template (optional, uses default)
-	Out      string `json:"out"`      // output image path
-	Raw      bool   `json:"raw"`      // treat template as raw HTML
+	Vars     map[string]string `json:"vars" yaml:"vars"`     // template variables (any keys)
+	Template string            `json:"template" yaml:"template"` // path to the HTML template (optional, uses default)
+	Out      string            `json:"out" yaml:"out"`       // output image path
+	Raw      bool              `json:"raw" yaml:"raw"`       // treat template as raw HTML
 }
 
 // Generator manages a shared Chrome browser for OG image generation.

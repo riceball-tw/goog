@@ -16,19 +16,11 @@ type MarkdownJob struct {
 	ImageJob
 }
 
-// ogImageFrontmatter represents the ogImage block in YAML frontmatter.
-type ogImageFrontmatter struct {
-	Title       string `yaml:"title"`
-	Tag         string `yaml:"tag"`
-	Description string `yaml:"description"`
-	SiteName    string `yaml:"site_name"`
-	Template    string `yaml:"template"`
-	Raw         bool   `yaml:"raw"`
-}
-
 // frontmatter wraps the top-level frontmatter structure.
+// OGImage is a generic map so users can define any template variables.
+// Special keys "template" and "raw" are extracted as ImageJob config.
 type frontmatter struct {
-	OGImage *ogImageFrontmatter `yaml:"ogImage"`
+	OGImage map[string]interface{} `yaml:"ogImage"`
 }
 
 // ScanMarkdown walks a directory tree looking for .md files with ogImage
@@ -77,7 +69,22 @@ func ScanMarkdown(root string, ignorePatterns []string) ([]MarkdownJob, error) {
 			return nil
 		}
 
-		og := fm.OGImage
+		rawMap := fm.OGImage
+		if rawMap == nil {
+			rawMap = make(map[string]interface{})
+		}
+
+		// Extract special ImageJob config keys
+		tmplStr, _ := rawMap["template"].(string)
+		rawBool, _ := rawMap["raw"].(bool)
+		delete(rawMap, "template")
+		delete(rawMap, "raw")
+
+		// Everything else becomes template variables
+		vars := make(map[string]string, len(rawMap))
+		for k, v := range rawMap {
+			vars[k] = fmt.Sprintf("%v", v)
+		}
 
 		// Generate output path: same directory, same base name, .png extension
 		dir := filepath.Dir(path)
@@ -87,15 +94,10 @@ func ScanMarkdown(root string, ignorePatterns []string) ([]MarkdownJob, error) {
 		job := MarkdownJob{
 			SourceFile: path,
 			ImageJob: ImageJob{
-				OGData: OGData{
-					Tag:         og.Tag,
-					Title:       og.Title,
-					Description: og.Description,
-					SiteName:    og.SiteName,
-				},
-				Template: og.Template,
+				Vars:     vars,
+				Template: tmplStr,
 				Out:      outPath,
-				Raw:      og.Raw,
+				Raw:      rawBool,
 			},
 		}
 

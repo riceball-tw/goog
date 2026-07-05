@@ -12,19 +12,30 @@ import (
 	"github.com/riceball-tw/goog/goog"
 )
 
+// varMap implements flag.Value for repeatable --var key=val flags.
+type varMap map[string]string
+
+func (v varMap) String() string { return "" }
+func (v varMap) Set(s string) error {
+	parts := strings.SplitN(s, "=", 2)
+	if len(parts) != 2 {
+		return fmt.Errorf("invalid --var format: %q (expected key=value)", s)
+	}
+	v[parts[0]] = parts[1]
+	return nil
+}
+
 func main() {
 	// CLI flags
 	tmplPath := flag.String("template", "templates/og.html", "path to the HTML template")
 	outPath := flag.String("out", "og.png", "output image path")
-	title := flag.String("title", "Hello, Open Graph!", "og title text")
-	description := flag.String("desc", "A simple OG image generator powered by Go and chromedp.", "og description text")
-	tag := flag.String("tag", "Blog Post", "tag / category label")
-	siteName := flag.String("site", "example.com", "site name shown in footer")
 	rawHTML := flag.Bool("raw", false, "treat the template as raw HTML (skip Go template rendering)")
 	configPath := flag.String("config", "", "path to a JSON config file for batch generation")
 	workers := flag.Int("workers", 4, "number of concurrent workers for batch generation")
 	scanMarkdown := flag.String("scan-markdown", "", "directory to scan for markdown files with ogImage frontmatter")
 	ignorePatterns := flag.String("ignore-patterns", "", "comma-separated glob patterns to ignore (markdown mode)")
+	vars := make(varMap)
+	flag.Var(&vars, "var", "template variable (key=value, repeatable)")
 	flag.Parse()
 
 	var jobs []goog.ImageJob
@@ -70,15 +81,17 @@ func main() {
 			}
 		}
 	} else {
-		// Single-image mode (backwards compatible)
+		// Single-image mode
+		if len(vars) == 0 {
+			// Sensible defaults so --out og.png just works
+			vars["title"] = "Hello, Open Graph!"
+			vars["tag"] = "Blog Post"
+			vars["description"] = "A simple OG image generator powered by Go and chromedp."
+			vars["site"] = "example.com"
+		}
 		jobs = []goog.ImageJob{
 			{
-				OGData: goog.OGData{
-					Tag:         *tag,
-					Title:       *title,
-					Description: *description,
-					SiteName:    *siteName,
-				},
+				Vars:     vars,
 				Template: *tmplPath,
 				Out:      *outPath,
 				Raw:      *rawHTML,

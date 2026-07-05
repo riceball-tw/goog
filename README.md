@@ -2,7 +2,7 @@
 
 > Generate OG images from customizable Go templates
 > ```bash
-> goog --title "Hello, World!" --desc "A quick intro to goog" --tag "Blog" --site "example.com" --out card.png
+> goog --var title="Hello, World!" --var description="A quick intro" --var tag="Blog" --var site="example.com" --out card.png
 > ```
 
 ## Why
@@ -48,36 +48,48 @@ goog [flags]
 |------|---------|-------------|
 | `--template` | `templates/og.html` | Path to the HTML template file |
 | `--out` | `og.png` | Output image path |
-| `--title` | `"Hello, Open Graph!"` | OG title text |
-| `--desc` | `"A simple OG image generator..."` | OG description text |
-| `--tag` | `"Blog Post"` | Tag / category label |
-| `--site` | `"example.com"` | Site name shown in footer |
+| `--var` | — | Template variable (`key=value`, repeatable) |
 | `--raw` | `false` | Treat template file as raw HTML (skip Go template engine) |
 
 ### Built-in Template
 
 The default template (`templates/og.html`) renders a dark gradient card with these slots:
 
-| Template Variable | Flag | Description |
+| Template Variable | `--var` key | Description |
 |---|---|---|
-| `{{.Tag}}` | `--tag` | Uppercase tag badge (purple) |
-| `{{.Title}}` | `--title` | Main headline (56px bold) |
-| `{{.Description}}` | `--desc` | Subtitle text (24px, muted) |
-| `{{.SiteName}}` | `--site` | Footer site name |
+| `{{.tag}}` | `tag` | Uppercase tag badge (purple) |
+| `{{.title}}` | `title` | Main headline (56px bold) |
+| `{{.description}}` | `description` | Subtitle text (24px, muted) |
+| `{{.site}}` | `site` | Footer site name |
 
-### Custom Templates
+### Custom Templates & Arbitrary Variables
 
-Use `--template` to point to your own HTML file. The template can use Go's `text/template` syntax with the same `.Tag`, `.Title`, `.Description`, `.SiteName` variables, or use `--raw` to skip Go template rendering entirely and serve the file as-is.
+Use `--template` to point to your own HTML file. The template uses Go's `text/template` syntax and can reference **any** variable you pass via `--var`.
 
 ```bash
-# With your own Go template
-goog --template my-card.html --title "Custom Card"
-
-# With raw HTML (no template processing)
-goog --template my-card.html --raw --title ignored
+# Template with any fields you want
+goog --template my-card.html \
+  --var "title=My Post" \
+  --var "author=John Doe" \
+  --var "date=2026-07-05" \
+  --var "reading_time=8 min"
 ```
 
-When `--raw` is used, no template variables are injected — the file contents are passed directly to Chrome.
+Your template `my-card.html` can then use `{{.title}}`, `{{.author}}`, `{{.date}}`, `{{.reading_time}}`:
+
+```html
+<div class="byline">{{.author}} · {{.date}} · {{.reading_time}}</div>
+<div class="title">{{.title}}</div>
+```
+
+If you run `goog` without any `--var` flags, sensible defaults are used:
+`title=Hello, Open Graph!`, `tag=Blog Post`, `description=...`, `site=example.com`.
+
+Use `--raw` to skip Go template rendering entirely and serve the file as-is:
+
+```bash
+goog --template static.html --raw
+```
 
 ## GitHub Action
 
@@ -110,10 +122,10 @@ Set `artifact_path` to change the staging directory.
 
 ```bash
 goog \
-  --tag "Tutorial" \
-  --title "How to Generate OG Images in Go" \
-  --desc "Learn how to automate social card generation with chromedp" \
-  --site "example.com" \
+  --var "tag=Tutorial" \
+  --var "title=How to Generate OG Images in Go" \
+  --var "description=Learn how to automate social card generation with chromedp" \
+  --var "site=example.com" \
   --out tutorial-og.png
 ```
 

@@ -11,7 +11,7 @@ import (
 	"github.com/chromedp/chromedp"
 )
 
-// renderHTML reads the template file and renders it with OGData.
+// renderHTML reads the template file and renders it with Vars via html/template.
 // If job.Raw is true, the template is returned as-is without Go template processing.
 func renderHTML(job ImageJob) (string, error) {
 	tmplBytes, err := os.ReadFile(job.Template)
@@ -29,7 +29,7 @@ func renderHTML(job ImageJob) (string, error) {
 	}
 
 	var buf bytes.Buffer
-	if err := t.Execute(&buf, job.OGData); err != nil {
+	if err := t.Execute(&buf, job.Vars); err != nil {
 		return "", fmt.Errorf("failed to execute template: %w", err)
 	}
 

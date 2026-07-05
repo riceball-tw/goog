@@ -50,12 +50,17 @@ else
         RAW_FLAG="--raw"
     fi
 
+    # Build --var flags from INPUT_VAR (one key=value per line)
+    VAR_FLAGS=()
+    if [ -n "${INPUT_VAR:-}" ]; then
+        while IFS= read -r line; do
+            [ -n "$line" ] && VAR_FLAGS+=(--var "$line")
+        done <<< "$INPUT_VAR"
+    fi
+
     goog \
         --template "${INPUT_TEMPLATE:-templates/og.html}" \
-        --title "${INPUT_TITLE:-Hello, Open Graph!}" \
-        --desc "${INPUT_DESCRIPTION:-}" \
-        --tag "${INPUT_TAG:-Blog Post}" \
-        --site "${INPUT_SITE_NAME:-example.com}" \
+        "${VAR_FLAGS[@]}" \
         --out "${INPUT_OUT:-out/og.png}" \
         --workers "${INPUT_WORKERS:-4}" \
         ${RAW_FLAG} \

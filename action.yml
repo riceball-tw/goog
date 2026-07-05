@@ -10,32 +10,20 @@ inputs:
     description: "Path to JSON config file for batch generation"
     required: false
     default: ""
-  # Markdown scanning mode (new)
+  # Markdown scanning mode
   scan_markdown:
     description: "Directory to scan for markdown files with ogImage frontmatter"
     required: false
     default: ""
-  # Single-image mode flags
+  # Single-image mode
   template:
     description: "Path to HTML template file"
     required: false
     default: "templates/og.html"
-  title:
-    description: "OG title text"
-    required: false
-    default: "Hello, Open Graph!"
-  description:
-    description: "OG description text"
+  var:
+    description: "Template variables as key=value pairs (one per line)"
     required: false
     default: ""
-  tag:
-    description: "Tag / category label"
-    required: false
-    default: "Blog Post"
-  site_name:
-    description: "Site name shown in footer"
-    required: false
-    default: "example.com"
   out:
     description: "Output image path (single mode only)"
     required: false

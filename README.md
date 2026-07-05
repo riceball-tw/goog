@@ -1,10 +1,15 @@
-# goog — Open Graph Image Generator
+# goog — Go Open Graph
 
-Generate Open Graph social card images from Go templates using headless Chrome.
+> Generate OG images from customizable Go templates
+> ```bash
+> goog --title "Hello, World!" --desc "A quick intro to goog" --tag "Blog" --site "example.com" --out card.png
+> ```
 
-```
-goog --title "Hello, World!" --desc "A quick intro to goog" --tag "Blog" --site "example.com" --out card.png
-```
+## Why
+
+There's plenty mature og generator out there like: [satori](https://github.com/vercel/satori), but it's not suitable for my need:
+- **speed** - JavaScript is slow and single threaded, it always took ~800ms to render single image, which is unbearable for thousands of images  
+- **customization** - Without JSX, just build from pure html template
 
 ## How It Works
 

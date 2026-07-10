@@ -34,6 +34,7 @@ func main() {
 	workers := flag.Int("workers", 4, "number of concurrent workers for batch generation")
 	scanMarkdown := flag.String("scan-markdown", "", "directory to scan for markdown files with ogImage frontmatter")
 	ignorePatterns := flag.String("ignore-patterns", "", "comma-separated glob patterns to ignore (markdown mode)")
+	quality := flag.Int("quality", 80, "PNG screenshot quality (1-100)")
 	vars := make(varMap)
 	flag.Var(&vars, "var", "template variable (key=value, repeatable)")
 	flag.Parse()
@@ -96,6 +97,13 @@ func main() {
 				Out:      *outPath,
 				Raw:      *rawHTML,
 			},
+		}
+	}
+
+	// Apply quality to all jobs (flag value overrides anything from config)
+	for i := range jobs {
+		if jobs[i].Quality <= 0 || jobs[i].Quality > 100 {
+			jobs[i].Quality = *quality
 		}
 	}
 

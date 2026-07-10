@@ -37,8 +37,13 @@ func renderHTML(job ImageJob) (string, error) {
 }
 
 // captureScreenshot sets HTML via CDP and takes a screenshot at 1200×630 (standard OG dimensions).
-func captureScreenshot(ctx context.Context, htmlContent string) ([]byte, error) {
+// quality is the PNG quality (0-100); 0 means default (80).
+func captureScreenshot(ctx context.Context, htmlContent string, quality int) ([]byte, error) {
 	var buf []byte
+
+	if quality <= 0 || quality > 100 {
+		quality = 80
+	}
 
 	err := chromedp.Run(ctx,
 		// Navigate to about:blank so we have a valid frame
@@ -60,7 +65,7 @@ func captureScreenshot(ctx context.Context, htmlContent string) ([]byte, error) 
 		chromedp.Evaluate(`new Promise(r => document.fonts.ready.then(() => requestAnimationFrame(r)))`, nil),
 
 		// Take a full-page screenshot
-		chromedp.FullScreenshot(&buf, 100),
+		chromedp.FullScreenshot(&buf, quality),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("chromedp run failed: %w", err)

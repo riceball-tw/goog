@@ -17,6 +17,7 @@ type ImageJob struct {
 	Template string            `json:"template" yaml:"template"` // path to the HTML template (optional, uses default)
 	Out      string            `json:"out" yaml:"out"`       // output image path
 	Raw      bool              `json:"raw" yaml:"raw"`       // treat template as raw HTML
+	Quality  int               `json:"quality" yaml:"quality"` // PNG screenshot quality (1-100, 0 = default 80)
 }
 
 // Generator manages a shared Chrome browser for OG image generation.
@@ -122,7 +123,7 @@ func (g *Generator) processJob(ctx context.Context, job ImageJob, idx, total int
 	tabCtx, timeoutCancel := context.WithTimeout(tabCtx, 30*time.Second)
 	defer timeoutCancel()
 
-	png, err := captureScreenshot(tabCtx, htmlContent)
+	png, err := captureScreenshot(tabCtx, htmlContent, job.Quality)
 	if err != nil {
 		return fmt.Errorf("capture failed: %w", err)
 	}

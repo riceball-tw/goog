@@ -37,7 +37,7 @@ func renderHTML(job ImageJob) (string, error) {
 }
 
 // captureScreenshot sets HTML via CDP and takes a screenshot at 1200×630 (standard OG dimensions).
-// quality is the PNG quality (0-100); 0 means default (80).
+// quality controls the format: 100 = PNG, lower values = JPEG (0 defaults to 100).
 func captureScreenshot(ctx context.Context, htmlContent string, quality int) ([]byte, error) {
 	var buf []byte
 

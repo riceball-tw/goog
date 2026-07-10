@@ -17,7 +17,7 @@ type ImageJob struct {
 	Template string            `json:"template" yaml:"template"` // path to the HTML template (optional, uses default)
 	Out      string            `json:"out" yaml:"out"`       // output image path
 	Raw      bool              `json:"raw" yaml:"raw"`       // treat template as raw HTML
-	Quality  int               `json:"quality" yaml:"quality"` // PNG screenshot quality (1-100, 0 = default 80)
+	Quality  int               `json:"quality" yaml:"quality"` // image quality (0-100; 100=PNG, lower=JPEG)
 }
 
 // Generator manages a shared Chrome browser for OG image generation.

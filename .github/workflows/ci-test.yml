@@ -38,6 +38,7 @@ jobs:
         run: |
           mkdir -p out
           ./goog-bin \
+            --quality 100 \
             --template templates/og.html \
             --var "tag=CI Test" \
             --var "title=goog Binary Test" \
@@ -52,7 +53,7 @@ jobs:
       # ── Test 2: Default variables (no --var) ────────────────────
       - name: "Test 2 — defaults (no --var flags)"
         run: |
-          ./goog-bin --template templates/og.html --out out/test-defaults.png
+          ./goog-bin --quality 100 --template templates/og.html --out out/test-defaults.png
           [ "$(xxd -l 4 -p out/test-defaults.png)" = "89504e47" ] || { echo "❌ 2: bad png"; exit 1; }
           echo "✅ Test 2 passed"
 
@@ -67,7 +68,7 @@ jobs:
           Raw HTML Test
           </h1></body></html>
           EOF
-          ./goog-bin --template /tmp/raw-test.html --raw --out out/test-raw.png
+          ./goog-bin --quality 100 --template /tmp/raw-test.html --raw --out out/test-raw.png
           [ "$(xxd -l 4 -p out/test-raw.png)" = "89504e47" ] || { echo "❌ 3: bad png"; exit 1; }
           echo "✅ Test 3 passed"
 
@@ -84,6 +85,7 @@ jobs:
           </body></html>
           EOF
           ./goog-bin \
+            --quality 100 \
             --template /tmp/custom.html \
             --var "author=John Doe" \
             --var "title=My Custom Post" \
@@ -109,7 +111,7 @@ jobs:
             }
           ]
           EOF
-          ./goog-bin --config /tmp/config.json --workers 2
+          ./goog-bin --quality 100 --config /tmp/config.json --workers 2
           for f in out/batch-1.png out/batch-2.png; do
             [ -f "$f" ] || { echo "❌ 5: missing $f"; exit 1; }
             [ "$(xxd -l 4 -p "$f")" = "89504e47" ] || { echo "❌ 5: bad png in $f"; exit 1; }
@@ -143,7 +145,7 @@ jobs:
           # Second Post
           More content here.
           EOF
-          ./goog-bin --scan-markdown /tmp/md-test --workers 2
+          ./goog-bin --quality 100 --scan-markdown /tmp/md-test --workers 2
           for f in /tmp/md-test/post-1.png /tmp/md-test/post-2.png; do
             [ -f "$f" ] || { echo "❌ 6: missing $f"; exit 1; }
             [ "$(xxd -l 4 -p "$f")" = "89504e47" ] || { echo "❌ 6: bad png in $f"; exit 1; }
@@ -173,6 +175,7 @@ jobs:
           # Skip
           EOF
           ./goog-bin \
+            --quality 100 \
             --scan-markdown /tmp/md-ignore \
             --ignore-patterns "skip.md" \
             --workers 2

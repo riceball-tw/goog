@@ -1,0 +1,187 @@
+name: Test goog Binary
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26'
+          check-latest: true
+          cache: true
+
+      - name: Build binary
+        run: go build -o goog ./cmd/goog
+
+      - name: Run go vet
+        run: go vet ./...
+
+      # ── Test 1: Single image (--template, --var, --out) ──────────
+      - name: "Test 1 — single image with default template"
+        run: |
+          mkdir -p out
+          ./goog \
+            --template templates/og.html \
+            --var "tag=CI Test" \
+            --var "title=goog Binary Test" \
+            --var "description=This image verifies the goog binary is working correctly" \
+            --var "site=github.com/riceball-tw/goog" \
+            --out out/test-og.png
+          # verify
+          if [ ! -f out/test-og.png ]; then echo "❌ 1: no output"; exit 1; fi
+          [ "$(xxd -l 4 -p out/test-og.png)" = "89504e47" ] || { echo "❌ 1: bad png"; exit 1; }
+          echo "✅ Test 1 passed ($(stat --format=%s out/test-og.png 2>/dev/null || stat -f%z out/test-og.png) bytes)"
+
+      # ── Test 2: Default variables (no --var) ────────────────────
+      - name: "Test 2 — defaults (no --var flags)"
+        run: |
+          ./goog --template templates/og.html --out out/test-defaults.png
+          [ "$(xxd -l 4 -p out/test-defaults.png)" = "89504e47" ] || { echo "❌ 2: bad png"; exit 1; }
+          echo "✅ Test 2 passed"
+
+      # ── Test 3: Raw HTML (--raw) ────────────────────────────────
+      - name: "Test 3 — raw HTML (no Go template engine)"
+        run: |
+          cat > /tmp/raw-test.html << 'EOF'
+          <!DOCTYPE html><html><body style="background:#4f46e5;
+          display:flex;align-items:center;justify-content:center;
+          width:1200px;height:630px;margin:0">
+          <h1 style="color:white;font-family:sans-serif;font-size:64px">
+          Raw HTML Test
+          </h1></body></html>
+          EOF
+          ./goog --template /tmp/raw-test.html --raw --out out/test-raw.png
+          [ "$(xxd -l 4 -p out/test-raw.png)" = "89504e47" ] || { echo "❌ 3: bad png"; exit 1; }
+          echo "✅ Test 3 passed"
+
+      # ── Test 4: Custom template with custom variables ──────────
+      - name: "Test 4 — custom template with arbitrary variables"
+        run: |
+          cat > /tmp/custom.html << 'EOF'
+          <!DOCTYPE html><html><body style="background:#111;color:white;
+          width:1200px;height:630px;display:flex;flex-direction:column;
+          align-items:center;justify-content:center;font-family:sans-serif;
+          margin:0">
+          <h1>{{.author}}</h1>
+          <p style="color:gray">{{.title}} — {{.date}}</p>
+          </body></html>
+          EOF
+          ./goog \
+            --template /tmp/custom.html \
+            --var "author=John Doe" \
+            --var "title=My Custom Post" \
+            --var "date=2026-07-10" \
+            --out out/test-custom.png
+          [ "$(xxd -l 4 -p out/test-custom.png)" = "89504e47" ] || { echo "❌ 4: bad png"; exit 1; }
+          echo "✅ Test 4 passed"
+
+      # ── Test 5: Batch config (--config) ─────────────────────────
+      - name: "Test 5 — batch config with multiple jobs"
+        run: |
+          cat > /tmp/config.json << 'EOF'
+          [
+            {
+              "template": "templates/og.html",
+              "vars": {"tag":"Batch","title":"Job One","description":"First batch job","site":"example.com"},
+              "out": "out/batch-1.png"
+            },
+            {
+              "template": "templates/og.html",
+              "vars": {"tag":"Batch","title":"Job Two","description":"Second batch job","site":"example.com"},
+              "out": "out/batch-2.png"
+            }
+          ]
+          EOF
+          ./goog --config /tmp/config.json --workers 2
+          for f in out/batch-1.png out/batch-2.png; do
+            [ -f "$f" ] || { echo "❌ 5: missing $f"; exit 1; }
+            [ "$(xxd -l 4 -p "$f")" = "89504e47" ] || { echo "❌ 5: bad png in $f"; exit 1; }
+          done
+          echo "✅ Test 5 passed (2 images generated)"
+
+      # ── Test 6: Scan markdown (--scan-markdown) ────────────────
+      - name: "Test 6 — scan markdown with ogImage frontmatter"
+        run: |
+          mkdir -p /tmp/md-test
+          cat > /tmp/md-test/post-1.md << 'EOF'
+          ---
+          ogImage:
+            template: "templates/og.html"
+            tag: "Blog"
+            title: "Markdown Scan Test"
+            description: "Generated from markdown frontmatter"
+            site: "example.com"
+          ---
+          # My Blog Post
+          This is the post content.
+          EOF
+          cat > /tmp/md-test/post-2.md << 'EOF'
+          ---
+          ogImage:
+            tag: "Note"
+            title: "Second Post"
+            description: "Another image from frontmatter"
+            site: "example.com"
+          ---
+          # Second Post
+          More content here.
+          EOF
+          ./goog --scan-markdown /tmp/md-test --workers 2
+          for f in /tmp/md-test/post-1.png /tmp/md-test/post-2.png; do
+            [ -f "$f" ] || { echo "❌ 6: missing $f"; exit 1; }
+            [ "$(xxd -l 4 -p "$f")" = "89504e47" ] || { echo "❌ 6: bad png in $f"; exit 1; }
+          done
+          echo "✅ Test 6 passed (2 markdown images)"
+
+      # ── Test 7: Scan markdown with --ignore-patterns ──────────
+      - name: "Test 7 — scan markdown with ignore patterns"
+        run: |
+          mkdir -p /tmp/md-ignore
+          cat > /tmp/md-ignore/keep.md << 'EOF'
+          ---
+          ogImage:
+            title: "Keep Me"
+            description: "Should be generated"
+            site: "test"
+          ---
+          # Keep
+          EOF
+          cat > /tmp/md-ignore/skip.md << 'EOF'
+          ---
+          ogImage:
+            title: "Skip Me"
+            description: "Should be ignored"
+            site: "test"
+          ---
+          # Skip
+          EOF
+          ./goog \
+            --scan-markdown /tmp/md-ignore \
+            --ignore-patterns "skip.md" \
+            --workers 2
+          [ -f /tmp/md-ignore/keep.png ] || { echo "❌ 7: keep.png not generated"; exit 1; }
+          [ "$(xxd -l 4 -p /tmp/md-ignore/keep.png)" = "89504e47" ] || { echo "❌ 7: bad png in keep.png"; exit 1; }
+          if [ -f /tmp/md-ignore/skip.png ]; then
+            echo "⚠️  7: skip.png was generated despite ignore pattern"
+          else
+            echo "✅ 7: skip.md correctly ignored"
+          fi
+          echo "✅ Test 7 passed"
+
+      # ── Upload test artifacts ─────────────────────────────────
+      - name: Upload test images
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-og-images
+          path: out/
+          if-no-files-found: error

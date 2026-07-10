@@ -23,6 +23,13 @@ jobs:
       - name: Build binary
         run: go build -o goog-bin ./cmd/goog
 
+      - name: Install Chromium
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chromium-browser
+          echo "CHROME_BIN=/usr/bin/chromium-browser" >> "$GITHUB_ENV"
+          echo "CHROMEDP_NO_SANDBOX=true" >> "$GITHUB_ENV"
+
       - name: Run go vet
         run: go vet ./...
 

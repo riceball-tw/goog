@@ -81,13 +81,11 @@ func (g *Generator) Generate(ctx context.Context, jobs []ImageJob) error {
 			defer wg.Done()
 			defer func() { <-sem }() // release slot
 
-			if err := g.processJob(ctx, j); err != nil {
+			if err := g.processJob(ctx, j, idx, len(jobs)); err != nil {
 				mu.Lock()
 				errs = append(errs, fmt.Errorf("job %d (%s): %w", idx, j.Out, err))
 				mu.Unlock()
 				log.Printf("❌ Job %d failed (%s): %v", idx, j.Out, err)
-			} else {
-				log.Printf("✅ [%d/%d] saved %s", idx+1, len(jobs), j.Out)
 			}
 		}(i, job)
 	}
@@ -109,7 +107,9 @@ func (g *Generator) Generate(ctx context.Context, jobs []ImageJob) error {
 }
 
 // processJob renders a single OG image: template → HTML → screenshot → file.
-func (g *Generator) processJob(ctx context.Context, job ImageJob) error {
+func (g *Generator) processJob(ctx context.Context, job ImageJob, idx, total int) error {
+	start := time.Now()
+
 	htmlContent, err := renderHTML(job)
 	if err != nil {
 		return err
@@ -131,6 +131,8 @@ func (g *Generator) processJob(ctx context.Context, job ImageJob) error {
 		return fmt.Errorf("failed to write %s: %w", job.Out, err)
 	}
 
+	elapsed := time.Since(start)
+	log.Printf("✅ [%d/%d] [%s] saved %s", idx+1, total, elapsed.Round(time.Millisecond), job.Out)
 	return nil
 }
 

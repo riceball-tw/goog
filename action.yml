@@ -53,6 +53,10 @@ inputs:
     description: "GitHub token for PR comments"
     required: false
     default: "${{ github.token }}"
+  quality:
+    description: "Image quality (0-100; 100=PNG lossless, lower=JPEG)"
+    required: false
+    default: "100"
   post_preview:
     description: "Post PR comment with image preview"
     required: false

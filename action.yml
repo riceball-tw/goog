@@ -64,4 +64,4 @@ outputs:
     description: "Newline-separated list of generated image paths"
 runs:
   using: "docker"
-  image: "docker://ghcr.io/riceball-tw/goog:v3.0.1"
+  image: "docker://ghcr.io/riceball-tw/goog:v3"

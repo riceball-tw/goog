@@ -17,8 +17,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract major version
+        id: extract
+        run: echo "major=$(echo '${{ github.ref_name }}' | sed 's/^v\([0-9]*\).*/v\1/')" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/riceball-tw/goog:${{ github.ref_name }}
+          tags: |
+            ghcr.io/riceball-tw/goog:${{ github.ref_name }}
+            ghcr.io/riceball-tw/goog:${{ steps.extract.outputs.major }}

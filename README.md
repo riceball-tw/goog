@@ -1,5 +1,7 @@
 # goog — Go Open Graph
 
+![Goog Demo Image](goog.jpg)
+
 > Generate OG images from customizable Go templates
 > ```bash
 > goog --var title="Hello, World!" --var description="A quick intro" --var tag="Blog" --var site="example.com" --out card.png
